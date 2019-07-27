@@ -1,0 +1,13 @@
+name: Rana
+version: "0.1"
+author: Leath and neronatac
+about: Random Analyzer Not Asynchronous is a not-working-at-all attempt to evaluate randomness.
+args:
+  - INPUT:
+      help: Sets the input file to use
+      required: true
+  - verbose:
+      short: v
+      long: verbose
+      multiple: true
+      help: Sets the level of verbosity (max 2)

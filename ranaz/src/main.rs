@@ -1,4 +1,8 @@
-use std::env;
+
+#[macro_use]
+extern crate clap;
+
+use clap::App;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -11,17 +15,15 @@ fn analyze(filename : &str) -> std::io::Result<()> {
 }
 
 fn main() -> std::io::Result<()> {
-    let args: Vec<String> = env::args().collect();
+    let yaml = load_yaml!("cli.yml");
+    let matches = App::from_yaml(yaml).get_matches();
 
-    match args.len() {
-        // no arguments passed
-        2 => {
-            let filename = &args[1];
-            analyze(filename);
-        },
-        _ => {
-            println!("This is an unstoppable killing machine");
-        }
+    let verbose_level = match matches.occurrences_of("v") {
+        lvl if lvl < 3 => lvl,
+        _ => panic!("Cannot take more than 2 verbose arguments.")
     };
+
+    analyze(matches.value_of("INPUT").unwrap());
+
     Ok(())
 }
