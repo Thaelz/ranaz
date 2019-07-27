@@ -12,12 +12,12 @@ fn analyze(filename : &str) -> std::io::Result<()> {
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
-
+    
     match args.len() {
         // no arguments passed
         2 => {
             let filename = &args[1];
-            analyze(filename);
+            analyze(filename)?;
         },
         _ => {
             println!("This is an unstoppable killing machine");
