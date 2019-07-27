@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 clap = {version = "2.33", features = ["yaml"]}
+image = "0.22"

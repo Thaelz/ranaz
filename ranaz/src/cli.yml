@@ -11,3 +11,16 @@ args:
       long: verbose
       multiple: true
       help: Sets the level of verbosity (max 2)
+
+subcommands:
+  - markov:
+      about: Markov chain computations
+      author: neronatac
+      args:
+        - OUTPUT:
+            help: Sets the output file
+            required: true
+        - png:
+            short: p
+            long: png
+            help: Outputs the Markov matrix to a PNG file
