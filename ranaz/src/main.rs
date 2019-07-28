@@ -12,9 +12,9 @@ use std::io::prelude::*;
  *  INPUT : String
  *  OUTPUT: (nb_zeroes, nb_ones)
  */
-fn mono_bit_stat(s: &mut Vec<u8>) -> (u128, u128) {
+fn mono_bit_stat(s: &mut Vec<u8>) -> (i128, i128) {
     let mut c = 0;
-    let tot = (s.len() * 8) as u128;
+    let tot = (s.len() * 8) as i128;
     for bi in s {
         let mut b = *bi;
         for _ in 0..8 {
@@ -22,13 +22,34 @@ fn mono_bit_stat(s: &mut Vec<u8>) -> (u128, u128) {
             b >>= 1;
         }
     }
-    ((tot-c) as u128, c)
+    ((tot-c) as i128, c as i128)
+}
+
+/* duo_bit_stat 
+ *  Return an array (nb_00, nb_01, nb_10, nb_00) which are respectively the number of 
+ *  occurences of each dibit.
+ *  INPUT : String
+ *  OUTPUT: (nb_00, nb_01, nb_10, nb_11)
+ */
+fn dibit_stat(s: &mut Vec<u8>) -> [i128; 4] {
+    let mut a: [i128; 4] = [0; 4];
+    let tot = (s.len() * 8) as i128;
+    for bi in s {
+        let mut b = *bi;
+        for _ in 0..4 {
+            let i = (b & 3) as usize;
+            a[i] += 1;
+            b >>= 2;
+        }
+    }
+    a
 }
 
 fn analyze(filename : &str) -> std::io::Result<()> { 
     let mut file = File::open(filename)?;
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)?;
+
     /* Bit test */
     let (count_z, count_o) = mono_bit_stat(&mut contents);
     println!("Bit test : Z({}), O({})", count_z, count_o);
@@ -36,6 +57,11 @@ fn analyze(filename : &str) -> std::io::Result<()> {
     bit_diff *= bit_diff;
     bit_diff /= count_z + count_o; 
     println!("Bit test === {}", bit_diff);
+
+    /* Dibit test */
+    let a = dibit_stat(&mut contents);
+    println!("Dibit test : 00:{} - 01:{} - 10:{} - 11:{}", a[0], a[1], a[2], a[3]);
+
     Ok(())
 }
 
