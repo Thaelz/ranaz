@@ -12,10 +12,10 @@ use std::io::prelude::*;
  *  INPUT : String
  *  OUTPUT: (nb_zeroes, nb_ones)
  */
-fn mono_bit_stat(s: &mut String) -> (u128, u128) {
+fn mono_bit_stat(s: &mut Vec<u8>) -> (u128, u128) {
     let mut c = 0;
-    let tot = (s.chars().count() * 8) as u128;
-    for bi in s.as_bytes() {
+    let tot = (s.len() * 8) as u128;
+    for bi in s {
         let mut b = *bi;
         for _ in 0..8 {
             if b & 1 == 1 { c += 1; }
@@ -27,8 +27,8 @@ fn mono_bit_stat(s: &mut String) -> (u128, u128) {
 
 fn analyze(filename : &str) -> std::io::Result<()> { 
     let mut file = File::open(filename)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents)?;
     /* Bit test */
     let (count_z, count_o) = mono_bit_stat(&mut contents);
     println!("Bit test : Z({}), O({})", count_z, count_o);
