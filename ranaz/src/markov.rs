@@ -56,15 +56,19 @@ pub fn to_img(matrix: &[[u32; 256]; 256], filename: &str) -> Result<(), std::io:
     println!("Max= {}", max);
 
     // Normalise u8 values + flatten the matrix
-    let mut pixels : [u8; 256*256] = [0; 256*256];
+    let mut pixels : [u8; 512*512] = [0; 512*512];
     for i in 0 .. 256 {
         for j in 0 .. 256 {
-            pixels[i * 256 + j] = (matrix[i][j] * 256 / *max) as u8;
+            let v = (256 - matrix[i][j] * 256 / *max) as u8;
+            pixels[i * 256 + j] = v;
+            pixels[i * 256 + j + 1] = v;
+            pixels[(i+1) * 256 + j] = v;
+            pixels[(i+1) * 256 + j + 1] = v;
         }
     }
 
     // write the PNG file
-    encoder.encode(&pixels, 256, 256, ColorType::Gray(8))?;
+    encoder.encode(&pixels, 512, 512, ColorType::Gray(8))?;
 
     Ok(())
 }
