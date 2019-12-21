@@ -8,3 +8,9 @@ Really, AN Attempt Zero
 4. rm tmpFile
 
 It prints file content because it's *awesome*.
+
+### Use of markov chain with a graphical representation
+cargo run /tmp/rand markov -p /tmp/rand.png
+
+### Only text analysis (bit, dibit)
+cargo run /tmp/rand

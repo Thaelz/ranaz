@@ -9,43 +9,27 @@ use clap::App;
 use std::fs::File;
 use std::io::prelude::*;
 
-/* mono_bit_stat
- *  Return a tuple (zeroes, ones) which are respectively the number of ones
- *  and zeros, as single bits, in the file content.
- *  INPUT : String
- *  OUTPUT: (nb_zeroes, nb_ones)
- */
-fn mono_bit_stat(s: &mut Vec<u8>) -> (i128, i128) {
-    let mut c = 0;
-    let tot = (s.len() * 8) as i128;
-    for bi in s {
-        let mut b = *bi;
-        for _ in 0..8 {
-            if b & 1 == 1 { c += 1; }
-            b >>= 1;
-        }
-    }
-    ((tot-c) as i128, c as i128)
-}
+fn bit_dibit_byte_stat(s : &Vec<u8>) -> ( [i128; 2], [i128; 4], [i128; 256] ) {
+    let mut bits: [i128; 2] = [0; 2];
+    let mut dibits: [i128; 4] = [0; 4];
+    let mut bytes: [i128; 256] = [0; 256];
 
-/* duo_bit_stat
- *  Return an array (nb_00, nb_01, nb_10, nb_00) which are respectively the number of
- *  occurences of each dibit.
- *  INPUT : String
- *  OUTPUT: (nb_00, nb_01, nb_10, nb_11)
- */
-fn dibit_stat(s: &mut Vec<u8>) -> [i128; 4] {
-    let mut a: [i128; 4] = [0; 4];
     let tot = (s.len() * 8) as i128;
-    for bi in s {
-        let mut b = *bi;
+
+    for byte in s {
+        let mut b = *byte;
         for _ in 0..4 {
-            let i = (b & 3) as usize;
-            a[i] += 1;
+            let d = (b & 3) as usize;
+            dibits[d] += 1;
             b >>= 2;
         }
+        bytes[b as usize] += 1;
     }
-    a
+
+    bits[1] = dibits[1] + dibits[2] + (dibits[3] << 1);
+    bits[0] = tot - bits[1];
+
+    return (bits, dibits, bytes);
 }
 
 fn analyze(filename : &str) -> std::io::Result<()> { // TODO: pass the File object as parameter?
@@ -53,17 +37,19 @@ fn analyze(filename : &str) -> std::io::Result<()> { // TODO: pass the File obje
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)?;
 
+    let (bits, dibits, bytes) = bit_dibit_byte_stat(&mut contents);
+
     /* Bit test */
-    let (count_z, count_o) = mono_bit_stat(&mut contents);
-    println!("Bit test : Z({}), O({})", count_z, count_o);
-    let mut bit_diff = count_z - count_o;
+    println!("Bit test : Z({}), O({})", bits[0], bits[1]);
+    let mut bit_diff = bits[0] - bits[1];
     bit_diff *= bit_diff;
-    bit_diff /= count_z + count_o;
+    bit_diff /= bits[0] + bits[1];
     println!("Bit test === {}", bit_diff);
 
     /* Dibit test */
-    let a = dibit_stat(&mut contents);
-    println!("Dibit test : 00:{} - 01:{} - 10:{} - 11:{}", a[0], a[1], a[2], a[3]);
+    println!("Dibit test: 00:{} - 01:{} - 10:{} - 11:{}", dibits[0], dibits[1], dibits[2], dibits[3]);
+
+    /* Byte test */
 
     Ok(())
 }
